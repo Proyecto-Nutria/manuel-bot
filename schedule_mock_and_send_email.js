@@ -38,10 +38,6 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
         var colorAccent3 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
           SpreadsheetApp.ThemeColorType.ACCENT3 // eslint-disable-line
         )
-        // "Confirmado" - color
-        var colorAccent5 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
-          SpreadsheetApp.ThemeColorType.ACCENT5 // eslint-disable-line
-        )
 
         paintCells(activeSheet, interviewerRow, currentCol, colorAccent1)
 
