@@ -312,7 +312,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
 function getCompressedDate (interviewDay) {
   var today = new Date()
   var day = today.getDate()
-  var month = today.getMonth()
+  var month = today.getMonth() + 1
   var year = today.getFullYear().toString().substr(2, 2)
 
   var interviewDayCleaned = interviewDay.replace(/\D/g, '')
