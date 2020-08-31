@@ -43,7 +43,7 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
           SpreadsheetApp.ThemeColorType.ACCENT5 // eslint-disable-line
         )
 
-        paintCells(activeSheet, interviewerRow, currentCol, color_accent1)
+        paintCells(activeSheet, interviewerRow, currentCol, colorAccent1)
 
         var discordUser = getDiscordUserOf(activeSheet, currentRow)
         var userEmail = getEmailOf(event, discordUser, logSheetName)
@@ -57,7 +57,6 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
           var subject = 'Updates for your ' + day + ' mock interview'
           sendEmailTo(userEmail, subject, updateEmailMessage)
           // Todo: Update calendar event
-
         } else if (newInterview) {
           var interviewer = getValueOf(activeSheet, interviewerRow, currentCol)
           if (isNumeric(interviewer)) {
@@ -77,7 +76,7 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
           }
         }
 
-        paintCells(activeSheet, interviewerRow, currentCol, color_accent3)
+        paintCells(activeSheet, interviewerRow, currentCol, colorAccent3)
       }
     }
   }
@@ -368,7 +367,7 @@ function writeLogEntry (e, discordUser, interviewDay, docUrl, interviewer) {
       Logger.log('User not found at Log Sheets') // eslint-disable-line
       createAlert('Email of ' + discordUser + ' not found in Log')
       break
-    } else if (logDiscordUser == discordUser) {
+    } else if (logDiscordUser === discordUser) {
       var currentColumn = 6
       while (true) {
         const cellDate = getInfoWithNoSpacesOF(logSheet, columnToLetter(currentColumn), currentEntryStr)
