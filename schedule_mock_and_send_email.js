@@ -1,5 +1,6 @@
 function schedule_mock_and_send_email(event) {
-  var activeSheet = event.source.getActiveSheet()
+  var activeSpreadsheet = event.source
+  var activeSheet = activeSpreadsheet.getActiveSheet()
 
   if (activeSheet.getName() === 'Schedule') {
     const empty = ''
@@ -29,6 +30,21 @@ function schedule_mock_and_send_email(event) {
         !roomAssigned
 
       if (roomAssigned === true || newInterview === true) {
+        // "Sin Mensaje" - color
+        var color_accent1 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT1
+        )
+        // "Mensaje enviado" - color
+        var color_accent3 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT3
+        )
+        // "Confirmado" - color
+        var color_accent5 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT5
+        )
+        
+        paintCells(activeSheet, interviewerRow, currentCol, color_accent1)
+
         var discordUser = getDiscordUserOf(activeSheet, currentRow)
         var userEmail = getEmailOf(event, discordUser, logSheetName)
         var day = getValueOf(activeSheet, dayRow, currentCol)
@@ -40,6 +56,8 @@ function schedule_mock_and_send_email(event) {
           var updateEmailMessage = getBodyEmail(discordUser, day, hour, room, prevGoogleDocUrl, updateInterviewEmailType)
           var subject = 'Updates for your ' + day + ' mock interview'
           sendEmailTo(userEmail, subject, updateEmailMessage)
+          // Todo: Update calendar event
+          
         } else if (newInterview) {
           var interviewer = getValueOf(activeSheet, interviewerRow, currentCol)
           if (isNumeric(interviewer)) {
@@ -54,9 +72,11 @@ function schedule_mock_and_send_email(event) {
             sendEmailTo(userEmail, newEmailSubject, newEmailMessage)
             var interviewerEmail = getEmailOf(event, interviewer, interviewersSheetName)
             createEventAndInvite(formattedRoom, day, hour, interviewerEmail)
-            paintAndUpdateCells(activeSheet, currentCol, interviewerRow, googleDocUrlRow, roomRow, docUrl, formattedRoom)
+            updateInterviewInfo(activeSheet, currentCol, googleDocUrlRow, roomRow, docUrl, formattedRoom)
           }
         }
+        
+        paintCells(activeSheet, interviewerRow, currentCol, color_accent3)
       }
     }
   }
@@ -211,11 +231,14 @@ function getGoogleDocBy (name) {
   '/'
 }
 
-function paintAndUpdateCells (activeSheet, currentCol, interviewerRow, googleDocUrlRow, roomRow, docUrl, formattedRoom) {
+function paintCells (activeSheet, interviewerRow, currentCol, color) {
   const numberOfElementsToPaint = 4
   activeSheet
     .getRange(interviewerRow, currentCol, numberOfElementsToPaint)
-    .setBackgroundRGB(248, 255, 171)
+    .setBackgroundObject(color)
+}
+
+function updateInterviewInfo (activeSheet, currentCol, googleDocUrlRow, roomRow, docUrl, formattedRoom) {
   activeSheet
     .getRange(googleDocUrlRow, currentCol)
     .setFormula('=HYPERLINK("' + docUrl + '";"Docs Link")')
