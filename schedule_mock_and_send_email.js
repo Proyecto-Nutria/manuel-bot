@@ -73,6 +73,7 @@ function schedule_mock_and_send_email(event) {
             var interviewerEmail = getEmailOf(event, interviewer, interviewersSheetName)
             createEventAndInvite(discordUser, formattedRoom, docUrl, day, hour, interviewerEmail)
             updateInterviewInfo(activeSheet, currentCol, googleDocUrlRow, roomRow, docUrl, formattedRoom)
+            writeLogEntry(event, discordUser, day, docUrl, interviewer)
           }
         }
         
@@ -93,7 +94,7 @@ function getDiscordUserOf (activeSheet, currentRow) {
 function getInfoWithNoSpacesOF (sheet, letterCell, numberCell) {
   return sheet
     .getRange(letterCell + numberCell.toString())
-    .getValues()[0][0]
+    .getValues()[0][0].toString()
     .replace(/(^\s+|\s+$)/g, ' ')
 }
 
@@ -306,4 +307,79 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
     'Please confirm.\n\n' +
     'Best,\n' +
     'Your friends at Nutria'
+}
+
+/**
+ * Convert the interview day number into a date in MM/DD/YY format.
+ * @param  {String} interviewDay     Day number of the interview.
+ * @return {String}                   Interview date (MM/DD/YY).
+ */
+function getCompressedDate(interviewDay){
+  var today = new Date()
+  var day = today.getDate()
+  var month = today.getMonth()
+  var year = today.getFullYear().toString().substr(2,2)
+
+  var interviewDayCleaned = interviewDay.replace(/\D/g, '')
+  if(interviewDayCleaned.length < 2) interviewDayCleaned = '0' + interviewDayCleaned
+  
+  if(interviewDayCleaned < day) month += 1
+
+  month = month.toString()
+  if(month.length < 2) month = '0' + month
+
+  return `${interviewDayCleaned}/${month}/${year}`
+}
+
+/**
+ * Translates the number of column and translate into letters format.
+ * @param  {Number} column            Number of the column indexed from 1.
+ * @return {String}                   Letter of the column as sheet format.
+ */
+function columnToLetter(column){
+  var temp, letter = ''
+  while (column > 0)
+  {
+    temp = (column - 1) % 26
+    letter = String.fromCharCode(temp + 65) + letter
+    column = (column - temp - 1) / 26
+  }
+  return letter
+}
+
+/**
+ * Write the new interview entry into the "Log" sheet
+ * @param  {Event} e                  The trigger event.
+ * @param  {String} discordUser      Discord user of the interviewee.
+ * @param  {String} interviewDay     Day number of the interview.
+ * @param  {String} docUrl           URL of the doc to be used in the interview.
+ * @param  {String} interviewer       Name (ID) of the interviewer.
+ */
+function writeLogEntry(e, discordUser, interviewDay, docUrl, interviewer){
+  const logSheet = e.source.getSheetByName("Log")
+
+  const completeDate = getCompressedDate(interviewDay)
+
+  var currentEntry = 3
+  while(true){
+    var currentEntryStr = currentEntry.toString()
+    var logDiscordUser = getInfoWithNoSpacesOF(logSheet, 'B', currentEntryStr)
+    if(logDiscordUser == ''){
+      Logger.log('User not found at Log Sheets')
+      createAlert('Email of ' + discordUser + ' not found in Log')
+      break
+    }else if(logDiscordUser == discordUser){
+      var currentColumn = 6
+      while(true){
+        const cellDate = getInfoWithNoSpacesOF(logSheet, columnToLetter(currentColumn), currentEntryStr)
+        if(cellDate === '') break
+        else currentColumn += 6
+      }
+      logSheet.getRange(currentEntry,currentColumn).setValue(completeDate)
+      logSheet.getRange(currentEntry,currentColumn+4).setFormula('=HYPERLINK("'+ docUrl +'";"Link")')
+      logSheet.getRange(currentEntry,currentColumn+5).setValue(interviewer)
+      break
+    }
+    currentEntry +=1
+  }
 }
