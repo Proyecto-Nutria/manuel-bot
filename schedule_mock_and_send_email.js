@@ -44,7 +44,7 @@ function schedule_mock_and_send_email(event) {
         )
         
         paintCells(activeSheet, interviewerRow, currentCol, color_accent1)
-
+        
         var discordUser = getDiscordUserOf(activeSheet, currentRow)
         var userEmail = getEmailOf(event, discordUser, logSheetName)
         var day = getValueOf(activeSheet, dayRow, currentCol)
@@ -57,7 +57,7 @@ function schedule_mock_and_send_email(event) {
           var subject = 'Updates for your ' + day + ' mock interview'
           sendEmailTo(userEmail, subject, updateEmailMessage)
           // Todo: Update calendar event
-          
+        
         } else if (newInterview) {
           var interviewer = getValueOf(activeSheet, interviewerRow, currentCol)
           if (isNumeric(interviewer)) {
@@ -71,7 +71,7 @@ function schedule_mock_and_send_email(event) {
             var newEmailSubject = 'Nutria Interview confirmation email'
             sendEmailTo(userEmail, newEmailSubject, newEmailMessage)
             var interviewerEmail = getEmailOf(event, interviewer, interviewersSheetName)
-            createEventAndInvite(formattedRoom, day, hour, interviewerEmail)
+            createEventAndInvite(discordUser, formattedRoom, docUrl, day, hour, interviewerEmail)
             updateInterviewInfo(activeSheet, currentCol, googleDocUrlRow, roomRow, docUrl, formattedRoom)
           }
         }
@@ -124,7 +124,9 @@ function getUrlOfCell (activeSheet, row, col) {
 }
 
 function createEventAndInvite (
+  discordUser,
   room,
+  docURL,
   interviewDay,
   interviewHour,
   interviewerEmail
@@ -168,7 +170,7 @@ function createEventAndInvite (
   CalendarApp.getCalendarById(
     mockCalendarId
   ).createEvent(
-    'Mock Interview',
+    'Mock Interview: ' + discordUser.slice(0, -5),
     new Date(
       today.getFullYear(),
       todayMonth,
@@ -186,6 +188,7 @@ function createEventAndInvite (
       0
     ),
     {
+      description: '<a href="' + docURL + '">Docs link</a>',
       location: room,
       guests: interviewerEmail,
       sendInvites: true
