@@ -1,4 +1,4 @@
-function schedule_mock_and_send_email(event) { // eslint-disable-line
+function schedule_mock_and_send_email(event) {
   var activeSheet = event.source.getActiveSheet()
 
   if (activeSheet.getName() === 'Schedule') {
@@ -129,7 +129,7 @@ function createEventAndInvite (
   }
 
   if (typeof meridiem === 'undefined') {
-    Logger.log('Error parsing the hour ' + interviewHourCleaned) // eslint-disable-line
+    Logger.log('Error parsing the hour ' + interviewHourCleaned)
     return
   }
 
@@ -145,7 +145,7 @@ function createEventAndInvite (
 
   if (interviewDayCleaned < todayDay) todayMonth += 1
 
-  CalendarApp.getCalendarById( // eslint-disable-line
+  CalendarApp.getCalendarById(
     mockCalendarId
   ).createEvent(
     'Mock Interview',
@@ -174,18 +174,18 @@ function createEventAndInvite (
 }
 
 function sendEmailTo (emailAddress, subject, message) {
-  MailApp.sendEmail(emailAddress, subject, message) // eslint-disable-line
+  MailApp.sendEmail(emailAddress, subject, message)
 }
 
 function createAlert (message) {
-  SpreadsheetApp.getUi().alert(message) // eslint-disable-line
+  SpreadsheetApp.getUi().alert(message)
 }
 
 function createGoogleFolderFor (discordUser) {
   const feedbackFolderName = 'Feedback Docs'
-  var folderDiscordUser = DriveApp.getFoldersByName(discordUser) // eslint-disable-line
+  var folderDiscordUser = DriveApp.getFoldersByName(discordUser)
   if (!folderDiscordUser.hasNext()) {
-    DriveApp.getFoldersByName(feedbackFolderName) // eslint-disable-line
+    DriveApp.getFoldersByName(feedbackFolderName)
       .next()
       .createFolder(discordUser)
   }
@@ -193,21 +193,21 @@ function createGoogleFolderFor (discordUser) {
 
 function createGoogleDocFor (discordUser) {
   var docName = discordUser + '_' + (Math.random() * 50).toString()
-  var docFile = DriveApp.getFileById(DocumentApp.create(docName).getId()) // eslint-disable-line
+  var docFile = DriveApp.getFileById(DocumentApp.create(docName).getId())
   docFile.setSharing(
-    DriveApp.Access.ANYONE_WITH_LINK, // eslint-disable-line
-    DriveApp.Permission.EDIT // eslint-disable-line
+    DriveApp.Access.ANYONE_WITH_LINK,
+    DriveApp.Permission.EDIT
   )
   // Copy doc to the directory we want it to be in. Delete it from root.
-  DriveApp.getFoldersByName(discordUser).next().addFile(docFile) // eslint-disable-line
-  DriveApp.getRootFolder().removeFile(docFile) // eslint-disable-line
+  DriveApp.getFoldersByName(discordUser).next().addFile(docFile)
+  DriveApp.getRootFolder().removeFile(docFile)
 
   return docName
 }
 
 function getGoogleDocBy (name) {
   return 'https://docs.google.com/document/d/' +
-  DriveApp.getFilesByName(name).next().getId() + // eslint-disable-line
+  DriveApp.getFilesByName(name).next().getId() +
   '/'
 }
 
