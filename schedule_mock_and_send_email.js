@@ -1,4 +1,4 @@
-function schedule_mock_and_send_email(event) {
+function schedule_mock_and_send_email (event) { // eslint-disable-line
   var activeSpreadsheet = event.source
   var activeSheet = activeSpreadsheet.getActiveSheet()
 
@@ -31,20 +31,20 @@ function schedule_mock_and_send_email(event) {
 
       if (roomAssigned === true || newInterview === true) {
         // "Sin Mensaje" - color
-        var color_accent1 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
-          SpreadsheetApp.ThemeColorType.ACCENT1
+        var colorAccent1 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT1 // eslint-disable-line
         )
         // "Mensaje enviado" - color
-        var color_accent3 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
-          SpreadsheetApp.ThemeColorType.ACCENT3
+        var colorAccent3 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT3 // eslint-disable-line
         )
         // "Confirmado" - color
-        var color_accent5 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
-          SpreadsheetApp.ThemeColorType.ACCENT5
+        var colorAccent5 = activeSpreadsheet.getSpreadsheetTheme().getConcreteColor(
+          SpreadsheetApp.ThemeColorType.ACCENT5 // eslint-disable-line
         )
-        
+
         paintCells(activeSheet, interviewerRow, currentCol, color_accent1)
-        
+
         var discordUser = getDiscordUserOf(activeSheet, currentRow)
         var userEmail = getEmailOf(event, discordUser, logSheetName)
         var day = getValueOf(activeSheet, dayRow, currentCol)
@@ -57,7 +57,7 @@ function schedule_mock_and_send_email(event) {
           var subject = 'Updates for your ' + day + ' mock interview'
           sendEmailTo(userEmail, subject, updateEmailMessage)
           // Todo: Update calendar event
-        
+
         } else if (newInterview) {
           var interviewer = getValueOf(activeSheet, interviewerRow, currentCol)
           if (isNumeric(interviewer)) {
@@ -76,7 +76,7 @@ function schedule_mock_and_send_email(event) {
             writeLogEntry(event, discordUser, day, docUrl, interviewer)
           }
         }
-        
+
         paintCells(activeSheet, interviewerRow, currentCol, color_accent3)
       }
     }
@@ -152,7 +152,7 @@ function createEventAndInvite (
   }
 
   if (typeof meridiem === 'undefined') {
-    Logger.log('Error parsing the hour ' + interviewHourCleaned)
+    Logger.log('Error parsing the hour ' + interviewHourCleaned) // eslint-disable-line
     return
   }
 
@@ -168,7 +168,7 @@ function createEventAndInvite (
 
   if (interviewDayCleaned < todayDay) todayMonth += 1
 
-  CalendarApp.getCalendarById(
+  CalendarApp.getCalendarById( // eslint-disable-line
     mockCalendarId
   ).createEvent(
     'Mock Interview: ' + discordUser.slice(0, -5),
@@ -198,18 +198,18 @@ function createEventAndInvite (
 }
 
 function sendEmailTo (emailAddress, subject, message) {
-  MailApp.sendEmail(emailAddress, subject, message)
+  MailApp.sendEmail(emailAddress, subject, message) // eslint-disable-line
 }
 
 function createAlert (message) {
-  SpreadsheetApp.getUi().alert(message)
+  SpreadsheetApp.getUi().alert(message) // eslint-disable-line
 }
 
 function createGoogleFolderFor (discordUser) {
   const feedbackFolderName = 'Feedback Docs'
-  var folderDiscordUser = DriveApp.getFoldersByName(discordUser)
+  var folderDiscordUser = DriveApp.getFoldersByName(discordUser) // eslint-disable-line
   if (!folderDiscordUser.hasNext()) {
-    DriveApp.getFoldersByName(feedbackFolderName)
+    DriveApp.getFoldersByName(feedbackFolderName) // eslint-disable-line
       .next()
       .createFolder(discordUser)
   }
@@ -217,21 +217,21 @@ function createGoogleFolderFor (discordUser) {
 
 function createGoogleDocFor (discordUser) {
   var docName = discordUser + '_' + (Math.random() * 50).toString()
-  var docFile = DriveApp.getFileById(DocumentApp.create(docName).getId())
+  var docFile = DriveApp.getFileById(DocumentApp.create(docName).getId()) // eslint-disable-line
   docFile.setSharing(
-    DriveApp.Access.ANYONE_WITH_LINK,
-    DriveApp.Permission.EDIT
+    DriveApp.Access.ANYONE_WITH_LINK, // eslint-disable-line
+    DriveApp.Permission.EDIT // eslint-disable-line
   )
   // Copy doc to the directory we want it to be in. Delete it from root.
-  DriveApp.getFoldersByName(discordUser).next().addFile(docFile)
-  DriveApp.getRootFolder().removeFile(docFile)
+  DriveApp.getFoldersByName(discordUser).next().addFile(docFile) // eslint-disable-line
+  DriveApp.getRootFolder().removeFile(docFile) // eslint-disable-line
 
   return docName
 }
 
 function getGoogleDocBy (name) {
   return 'https://docs.google.com/document/d/' +
-  DriveApp.getFilesByName(name).next().getId() +
+  DriveApp.getFilesByName(name).next().getId() + // eslint-disable-line
   '/'
 }
 
@@ -314,19 +314,19 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
  * @param  {String} interviewDay     Day number of the interview.
  * @return {String}                   Interview date (MM/DD/YY).
  */
-function getCompressedDate(interviewDay){
+function getCompressedDate (interviewDay) {
   var today = new Date()
   var day = today.getDate()
   var month = today.getMonth()
-  var year = today.getFullYear().toString().substr(2,2)
+  var year = today.getFullYear().toString().substr(2, 2)
 
   var interviewDayCleaned = interviewDay.replace(/\D/g, '')
-  if(interviewDayCleaned.length < 2) interviewDayCleaned = '0' + interviewDayCleaned
-  
-  if(interviewDayCleaned < day) month += 1
+  if (interviewDayCleaned.length < 2) interviewDayCleaned = '0' + interviewDayCleaned
+
+  if (interviewDayCleaned < day) month += 1
 
   month = month.toString()
-  if(month.length < 2) month = '0' + month
+  if (month.length < 2) month = '0' + month
 
   return `${interviewDayCleaned}/${month}/${year}`
 }
@@ -336,10 +336,10 @@ function getCompressedDate(interviewDay){
  * @param  {Number} column            Number of the column indexed from 1.
  * @return {String}                   Letter of the column as sheet format.
  */
-function columnToLetter(column){
-  var temp, letter = ''
-  while (column > 0)
-  {
+function columnToLetter (column) {
+  var temp = ''
+  var letter = ''
+  while (column > 0) {
     temp = (column - 1) % 26
     letter = String.fromCharCode(temp + 65) + letter
     column = (column - temp - 1) / 26
@@ -355,31 +355,31 @@ function columnToLetter(column){
  * @param  {String} docUrl           URL of the doc to be used in the interview.
  * @param  {String} interviewer       Name (ID) of the interviewer.
  */
-function writeLogEntry(e, discordUser, interviewDay, docUrl, interviewer){
-  const logSheet = e.source.getSheetByName("Log")
+function writeLogEntry (e, discordUser, interviewDay, docUrl, interviewer) {
+  const logSheet = e.source.getSheetByName('Log')
 
   const completeDate = getCompressedDate(interviewDay)
 
   var currentEntry = 3
-  while(true){
+  while (true) {
     var currentEntryStr = currentEntry.toString()
     var logDiscordUser = getInfoWithNoSpacesOF(logSheet, 'B', currentEntryStr)
-    if(logDiscordUser == ''){
-      Logger.log('User not found at Log Sheets')
+    if (logDiscordUser === '') {
+      Logger.log('User not found at Log Sheets') // eslint-disable-line
       createAlert('Email of ' + discordUser + ' not found in Log')
       break
-    }else if(logDiscordUser == discordUser){
+    } else if (logDiscordUser == discordUser) {
       var currentColumn = 6
-      while(true){
+      while (true) {
         const cellDate = getInfoWithNoSpacesOF(logSheet, columnToLetter(currentColumn), currentEntryStr)
-        if(cellDate === '') break
+        if (cellDate === '') break
         else currentColumn += 6
       }
-      logSheet.getRange(currentEntry,currentColumn).setValue(completeDate)
-      logSheet.getRange(currentEntry,currentColumn+4).setFormula('=HYPERLINK("'+ docUrl +'";"Link")')
-      logSheet.getRange(currentEntry,currentColumn+5).setValue(interviewer)
+      logSheet.getRange(currentEntry, currentColumn).setValue(completeDate)
+      logSheet.getRange(currentEntry, currentColumn + 4).setFormula('=HYPERLINK("' + docUrl + '";"Link")')
+      logSheet.getRange(currentEntry, currentColumn + 5).setValue(interviewer)
       break
     }
-    currentEntry +=1
+    currentEntry += 1
   }
 }
