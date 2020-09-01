@@ -286,7 +286,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
   var message = 'We have scheduled an interview for '
   if (type === 2) message = 'Your interview has been reschedule to '
   return 'Hi ' +
-    discordUser.slice(0, -5) +
+    discordUser +
     ',\n\n' +
     message +
     day +
