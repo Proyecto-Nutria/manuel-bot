@@ -287,7 +287,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
   if (type === 2) message = 'Your interview has been reschedule to '
   return 'Hi ' +
     discordUser +
-    ',\n\n' +
+    '\n\n' +
     message +
     day +
     ' at ' +
