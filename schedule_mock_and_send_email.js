@@ -1,3 +1,7 @@
+function getValueOf (activeSheet, row, col) {
+  return activeSheet.getRange(row, col).getValue()
+}
+
 function schedule_mock_and_send_email (event) { // eslint-disable-line
   var activeSpreadsheet = event.source
   var activeSheet = activeSpreadsheet.getActiveSheet()
@@ -61,7 +65,7 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
             createGoogleFolderFor(discordUser)
             var docName = createGoogleDocFor(discordUser)
             var docUrl = getGoogleDocBy(docName)
-            var formattedRoom = 'room-' + findAvailableRoom(activeSheet, currentCol)
+            var formattedRoom = 'room-' + findAvailableRoom(activeSheet, currentCol, getValueOf(activeSheet, currentRow, currentCol))
             var newEmailMessage = getBodyEmail(discordUser, day, hour, formattedRoom, docUrl, newInterviewEmailType)
             var newEmailSubject = 'Nutria Interview confirmation email'
             sendEmailTo(userEmail, newEmailSubject, newEmailMessage)
@@ -93,26 +97,90 @@ function getInfoWithNoSpacesOF (sheet, letterCell, numberCell) {
     .replace(/(^\s+|\s+$)/g, ' ')
 }
 
-function getValueOf (activeSheet, row, col) {
-  return activeSheet.getRange(row, col).getValue()
+// Doing: Validate the number of rooms
+function intervalsIntersect(interval1, interval2) {
+  if (interval1[1] <= interval2[0] || interval2[1] <= interval1[0]) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
-// Todo: Validate the number of rooms
-function findAvailableRoom (activeSheet, columnDay) {
+function findSpaceInRoom(busyTimeIntervalsForRoom, newInterviewInterval) {
+  for (var i = 0; i < busyTimeIntervalsForRoom.length; i++) {
+    if (intervalsIntersect(busyTimeIntervalsForRoom[i], newInterviewInterval)) return false;
+  }
+  return true;
+}
+
+function toMinutesInADay(timeAsString) {
+  timeAsString = String(timeAsString);
+  timeAsString = timeAsString.toLowerCase();
+  var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/);
+  if (!parsedTime) {
+    console.log("error in function: toMinutesInADay", "wrong time format");
+    return -1;
+  }
+  parsedTime = parsedTime[0].split(":")
+  var hours = parseInt(parsedTime[0]);
+  var minutes = parsedTime.length < 2 ? 0 : parseInt(parsedTime[1]);
+
+  if (hours == 12 && timeAsString.includes("am")) {
+    hours = 0;
+  } else if (hours < 12 && timeAsString.includes("pm")) {
+    hours += 12;
+  }
+  return hours * 60 + minutes;
+}
+
+function getRoomId(rawText) {
+  return parseInt(rawText.match(/\d+/)[0]);
+}
+
+function findAvailableRoom (activeSheet, columnDay, newTime) {
   const discordUserCol = 'P'
   var discordUserIndex = 4
   var indexRoom = 8
   var possibleRoom = 1
-
-  while (true) {
+  var roomsLimit = 10;
+  var rooms = [];
+  var auxcnt = 0;
+  
+  var interviewDurationInMinutes = 75;
+  for (var i = 0; i < roomsLimit; i++) {
+    rooms.push([[0, 0]]);
+  }
+  console.log("findAvailableRoom")
+  var maxLimit = 100, it = 0;
+  while (it < maxLimit) {
     if (getInfoWithNoSpacesOF(activeSheet, discordUserCol, discordUserIndex) === '') break
     var room = getValueOf(activeSheet, indexRoom, columnDay)
-    if (room !== '') possibleRoom += 1
+    if (room !== '') {
+      var roomId = getRoomId(room) - 1;
+      var time = toMinutesInADay(getValueOf(activeSheet, indexRoom - 2, columnDay))
+      rooms[roomId].push([time, time + interviewDurationInMinutes]);
+      auxcnt++;
+    }
     discordUserIndex += 5
     indexRoom += 5
+    it++;
   }
 
-  return possibleRoom.toString()
+  let availableRoom = null;
+  newTime = toMinutesInADay(newTime);
+  newTimeInterval = [newTime, newTime + interviewDurationInMinutes];
+  for (var i = 0; i < roomsLimit; i++) {
+    if (findSpaceInRoom(rooms[i], newTimeInterval)) {
+      availableRoom = i + 1;
+      break;
+    }
+  }
+
+  if (availableRoom) {
+    return availableRoom.toString();
+  } else {
+    return (auxcnt + 1).toString();
+  }
 }
 
 function getUrlOfCell (activeSheet, row, col) {
@@ -166,7 +234,7 @@ function createEventAndInvite (
   CalendarApp.getCalendarById( // eslint-disable-line
     mockCalendarId
   ).createEvent(
-    'Mock Interview: ' + discordUser.slice(0, -5),
+    'Mock Interview: ' + discordUser,
     new Date(
       today.getFullYear(),
       todayMonth,
@@ -299,7 +367,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
     'Doc: ' +
     docUrl +
     '\n\n' +
-    'Please confirm.\n\n' +
+    'Please confirm (You need to specifically write the word "confirm").\n\n' +
     'Best,\n' +
     'Your friends at Nutria'
 }
