@@ -98,88 +98,88 @@ function getInfoWithNoSpacesOF (sheet, letterCell, numberCell) {
 }
 
 // Doing: Validate the number of rooms
-function intervalsIntersect(interval1, interval2) {
+function intervalsIntersect (interval1, interval2) {
   if (interval1[1] <= interval2[0] || interval2[1] <= interval1[0]) {
-    return false;
+    return false
   } else {
-    return true;
+    return true
   }
 }
 
-function findSpaceInRoom(busyTimeIntervalsForRoom, newInterviewInterval) {
+function findSpaceInRoom (busyTimeIntervalsForRoom, newInterviewInterval) {
   for (var i = 0; i < busyTimeIntervalsForRoom.length; i++) {
-    if (intervalsIntersect(busyTimeIntervalsForRoom[i], newInterviewInterval)) return false;
+    if (intervalsIntersect(busyTimeIntervalsForRoom[i], newInterviewInterval)) return false
   }
-  return true;
+  return true
 }
 
-function toMinutesInADay(timeAsString) {
-  timeAsString = String(timeAsString);
-  timeAsString = timeAsString.toLowerCase();
-  var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/);
+function toMinutesInADay (timeAsString) {
+  timeAsString = String(timeAsString)
+  timeAsString = timeAsString.toLowerCase()
+  var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/)
   if (!parsedTime) {
-    console.log("error in function: toMinutesInADay", "wrong time format");
-    return -1;
+    console.log('error in function: toMinutesInADay", "wrong time format')
+    return -1
   }
-  parsedTime = parsedTime[0].split(":")
-  var hours = parseInt(parsedTime[0]);
-  var minutes = parsedTime.length < 2 ? 0 : parseInt(parsedTime[1]);
+  parsedTime = parsedTime[0].split(':')
+  var hours = parseInt(parsedTime[0])
+  var minutes = parsedTime.length < 2 ? 0 : parseInt(parsedTime[1])
 
-  if (hours == 12 && timeAsString.includes("am")) {
-    hours = 0;
-  } else if (hours < 12 && timeAsString.includes("pm")) {
-    hours += 12;
+  if (hours === 12 && timeAsString.includes('am')) {
+    hours = 0
+  } else if (hours < 12 && timeAsString.includes('pm')) {
+    hours += 12
   }
-  return hours * 60 + minutes;
+  return hours * 60 + minutes
 }
 
-function getRoomId(rawText) {
-  return parseInt(rawText.match(/\d+/)[0]);
+function getRoomId (rawText) {
+  return parseInt(rawText.match(/\d+/)[0])
 }
 
 function findAvailableRoom (activeSheet, columnDay, newTime) {
   const discordUserCol = 'P'
   var discordUserIndex = 4
   var indexRoom = 8
-  var possibleRoom = 1
-  var roomsLimit = 10;
-  var rooms = [];
-  var auxcnt = 0;
-  
-  var interviewDurationInMinutes = 75;
+  var roomsLimit = 10
+  var rooms = []
+  var auxcnt = 0
+
+  var interviewDurationInMinutes = 75
   for (var i = 0; i < roomsLimit; i++) {
-    rooms.push([[0, 0]]);
+    rooms.push([[0, 0]])
   }
-  console.log("findAvailableRoom")
-  var maxLimit = 100, it = 0;
+  console.log('findAvailableRoom')
+  var maxLimit = 100
+  var it = 0
   while (it < maxLimit) {
     if (getInfoWithNoSpacesOF(activeSheet, discordUserCol, discordUserIndex) === '') break
     var room = getValueOf(activeSheet, indexRoom, columnDay)
     if (room !== '') {
-      var roomId = getRoomId(room) - 1;
+      var roomId = getRoomId(room) - 1
       var time = toMinutesInADay(getValueOf(activeSheet, indexRoom - 2, columnDay))
-      rooms[roomId].push([time, time + interviewDurationInMinutes]);
-      auxcnt++;
+      rooms[roomId].push([time, time + interviewDurationInMinutes])
+      auxcnt++
     }
     discordUserIndex += 5
     indexRoom += 5
-    it++;
+    it++
   }
 
-  let availableRoom = null;
-  newTime = toMinutesInADay(newTime);
-  newTimeInterval = [newTime, newTime + interviewDurationInMinutes];
-  for (var i = 0; i < roomsLimit; i++) {
-    if (findSpaceInRoom(rooms[i], newTimeInterval)) {
-      availableRoom = i + 1;
-      break;
+  var availableRoom = null
+  newTime = toMinutesInADay(newTime)
+  var newTimeInterval = [newTime, newTime + interviewDurationInMinutes]
+  for (var limit = 0; limit < roomsLimit; limit++) {
+    if (findSpaceInRoom(rooms[limit], newTimeInterval)) {
+      availableRoom = limit + 1
+      break
     }
   }
 
   if (availableRoom) {
-    return availableRoom.toString();
+    return availableRoom.toString()
   } else {
-    return (auxcnt + 1).toString();
+    return (auxcnt + 1).toString()
   }
 }
 
@@ -316,6 +316,7 @@ function getEmailOf (event, id, sheetName) {
   const interviewersSheetName = 'Interviewers'
   const interviewersEmailRow = 'C'
   const intervieweeEmailRow = 'D'
+  const idColumn = 'B'
 
   var userEmail = ''
   var currentEntry = 3
@@ -331,13 +332,13 @@ function getEmailOf (event, id, sheetName) {
     var currentEntryAsStr = currentEntry.toString()
     var user = getInfoWithNoSpacesOF(
       sheet,
-      'B',
+      idColumn,
       currentEntryAsStr
     )
     if (user === '') {
       createAlert('Email of ' + id + ' not found in ' + sheetName)
       break
-    } else if (user === id) {
+    } else if (user.toLowerCase() === id) {
       userEmail = getInfoWithNoSpacesOF(
         sheet,
         emailRow,
