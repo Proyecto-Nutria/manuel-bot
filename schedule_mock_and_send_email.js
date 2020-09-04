@@ -116,7 +116,7 @@ function findSpaceInRoom (busyTimeIntervalsForRoom, newInterviewInterval) {
 function toMinutesInADay (timeAsString) {
   timeAsString = String(timeAsString)
   timeAsString = timeAsString.toLowerCase()
-  var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/)
+  var parsedTime = timeAsString.match(/\d{1,2}(\s*:\s*\d{2})?/)
   if (!parsedTime) {
     console.log('error in function: toMinutesInADay", "wrong time format')
     return -1
