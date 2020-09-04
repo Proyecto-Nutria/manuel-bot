@@ -1,7 +1,3 @@
-function getValueOf (activeSheet, row, col) {
-  return activeSheet.getRange(row, col).getValue()
-}
-
 function schedule_mock_and_send_email (event) { // eslint-disable-line
   var activeSpreadsheet = event.source
   var activeSheet = activeSpreadsheet.getActiveSheet()
@@ -72,7 +68,7 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
             var interviewerEmail = getEmailOf(event, interviewer, interviewersSheetName)
             createEventAndInvite(discordUser, formattedRoom, docUrl, day, hour, interviewerEmail)
             updateInterviewInfo(activeSheet, currentCol, googleDocUrlRow, roomRow, docUrl, formattedRoom)
-            writeLogEntry(event, discordUser, day, docUrl, interviewer)
+            writeLogEntry(event, discordUser, day, docUrl, interviewer, logSheetName)
           }
         }
 
@@ -338,7 +334,7 @@ function getEmailOf (event, id, sheetName) {
     if (user === '') {
       createAlert('Email of ' + id + ' not found in ' + sheetName)
       break
-    } else if (user.toLowerCase() === id) {
+    } else if (user === id) {
       userEmail = getInfoWithNoSpacesOF(
         sheet,
         emailRow,
@@ -373,11 +369,10 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
     'Your friends at Nutria'
 }
 
-/**
- * Convert the interview day number into a date in MM/DD/YY format.
- * @param  {String} interviewDay     Day number of the interview.
- * @return {String}                   Interview date (MM/DD/YY).
- */
+function getValueOf (activeSheet, row, col) {
+  return activeSheet.getRange(row, col).getValue()
+}
+
 function getCompressedDate (interviewDay) {
   var today = new Date()
   var day = today.getDate()
@@ -395,11 +390,6 @@ function getCompressedDate (interviewDay) {
   return `${interviewDayCleaned}/${month}/${year}`
 }
 
-/**
- * Translates the number of column and translate into letters format.
- * @param  {Number} column            Number of the column indexed from 1.
- * @return {String}                   Letter of the column as sheet format.
- */
 function columnToLetter (column) {
   var temp = ''
   var letter = ''
@@ -411,20 +401,10 @@ function columnToLetter (column) {
   return letter
 }
 
-/**
- * Write the new interview entry into the "Log" sheet
- * @param  {Event} e                  The trigger event.
- * @param  {String} discordUser      Discord user of the interviewee.
- * @param  {String} interviewDay     Day number of the interview.
- * @param  {String} docUrl           URL of the doc to be used in the interview.
- * @param  {String} interviewer       Name (ID) of the interviewer.
- */
-function writeLogEntry (e, discordUser, interviewDay, docUrl, interviewer) {
-  const logSheet = e.source.getSheetByName('Log')
-
-  const completeDate = getCompressedDate(interviewDay)
-
+function writeLogEntry (event, discordUser, interviewDay, docUrl, interviewer, logSheetName) {
   var currentEntry = 3
+  var logSheet = event.source.getSheetByName(logSheetName)
+  var completeDate = getCompressedDate(interviewDay)
   while (true) {
     var currentEntryStr = currentEntry.toString()
     var logDiscordUser = getInfoWithNoSpacesOF(logSheet, 'B', currentEntryStr)
@@ -447,3 +427,5 @@ function writeLogEntry (e, discordUser, interviewDay, docUrl, interviewer) {
     currentEntry += 1
   }
 }
+
+module.exports = { isNumeric, getRoomId, columnToLetter, getInfoWithNoSpacesOF }
