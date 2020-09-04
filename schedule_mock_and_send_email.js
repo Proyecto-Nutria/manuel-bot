@@ -112,7 +112,7 @@ function toMinutesInADay (timeAsString) {
   timeAsString = String(timeAsString).toLowerCase()
   var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/)
   if (!parsedTime) {
-    Logger.log('Wrong time format')
+    Logger.log('Wrong time format') // eslint-disable-line
     return -1
   }
   parsedTime = parsedTime[0].split(':')
@@ -434,5 +434,5 @@ module.exports = {
   intervalsIntersect,
   findSpaceInRoom,
   toMinutesInADay,
-  getUrlOfCell,
+  getUrlOfCell
 }
