@@ -9,7 +9,7 @@ jobs:
       - uses: goto-bus-stop/standard-action@v1
         with:
           # limit the files to lint, default '**/*.js'
-          files: *.js
+          files: '*.js'
           # show errors in the the github diff UI
           annotate: true
 
