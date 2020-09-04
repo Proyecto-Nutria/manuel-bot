@@ -93,7 +93,6 @@ function getInfoWithNoSpacesOF (sheet, letterCell, numberCell) {
     .replace(/(^\s+|\s+$)/g, ' ')
 }
 
-// Doing: Validate the number of rooms
 function intervalsIntersect (interval1, interval2) {
   if (interval1[1] <= interval2[0] || interval2[1] <= interval1[0]) {
     return false
@@ -110,11 +109,10 @@ function findSpaceInRoom (busyTimeIntervalsForRoom, newInterviewInterval) {
 }
 
 function toMinutesInADay (timeAsString) {
-  timeAsString = String(timeAsString)
-  timeAsString = timeAsString.toLowerCase()
-  var parsedTime = timeAsString.match(/\d{1,2}(\s*:\s*\d{2})?/)
+  timeAsString = String(timeAsString).toLowerCase()
+  var parsedTime = timeAsString.match(/\d{1,2}(:\d{2})?/)
   if (!parsedTime) {
-    console.log('error in function: toMinutesInADay", "wrong time format')
+    Logger.log('Wrong time format')
     return -1
   }
   parsedTime = parsedTime[0].split(':')
@@ -145,7 +143,7 @@ function findAvailableRoom (activeSheet, columnDay, newTime) {
   for (var i = 0; i < roomsLimit; i++) {
     rooms.push([[0, 0]])
   }
-  console.log('findAvailableRoom')
+
   var maxLimit = 100
   var it = 0
   while (it < maxLimit) {
@@ -428,4 +426,13 @@ function writeLogEntry (event, discordUser, interviewDay, docUrl, interviewer, l
   }
 }
 
-module.exports = { isNumeric, getRoomId, columnToLetter, getInfoWithNoSpacesOF }
+module.exports = {
+  isNumeric,
+  getRoomId,
+  columnToLetter,
+  getInfoWithNoSpacesOF,
+  intervalsIntersect,
+  findSpaceInRoom,
+  toMinutesInADay,
+  getUrlOfCell,
+}
