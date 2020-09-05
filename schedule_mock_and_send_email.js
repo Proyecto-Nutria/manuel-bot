@@ -353,7 +353,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
     '\n\n' +
     message +
     day +
-    ' at ' +
+    ' , ' +
     hour +
     ' PT.\n\n' +
     'Place: ' +
