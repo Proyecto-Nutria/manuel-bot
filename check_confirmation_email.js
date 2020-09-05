@@ -10,6 +10,7 @@ function updateSheetIfConfirmationEmailIn (unreadEmails) {
   const nutriaEmail = 'proyecto.nutria.escom@gmail.com'
   const nutriaNewSubject = 'Nutria Interview'
   const nutriaUpdateSubject = 'Updates'
+  const nutriaSimbol = '>'
 
   for (var unreadIndex = 0; unreadIndex < unreadEmails.length; unreadIndex++) {
     var currentEmail = unreadEmails[unreadIndex]
@@ -27,28 +28,20 @@ function updateSheetIfConfirmationEmailIn (unreadEmails) {
       for (var lineIndex = 0; lineIndex < bodyOfTheEmailSplittedByLine.length; lineIndex++) {
         var currentLine = bodyOfTheEmailSplittedByLine[lineIndex]
         if (currentLine !== '') {
-          if (nutriaMessage === false) {
-            if (currentLine.includes(nutriaEmail)) {
-              nutriaMessage = true
-            } else if (currentLine.toLowerCase().includes('confirm')) {
-              confirmation = true
-            }
+          if (!currentLine.includes(nutriaSimbol)) {
+            if (currentLine.toLowerCase().includes('confirm')) confirmation = true
           }
-
-          if (nutriaMessage === true && confirmation === true) {
-            if (interviewDay !== '') break
+          else if (currentLine.includes(nutriaSimbol)) {
             if (currentLine.toLowerCase().includes('hi')) discordUser = currentLine.split(' ')[2]
-
-            if (currentLine.toLowerCase().includes('scheduled')) {
-              interviewDay = currentLine.split('for')[1].split('at')[0]
-            }
-
-            if (currentLine.toLowerCase().includes('reschedule')) {
-              interviewDay = currentLine.split('to')[1].split('at')[0]
-            }
+            if (currentLine.toLowerCase().includes('scheduled')) interviewDay = currentLine.split('for')[1].split(',')[0]
+            if (currentLine.toLowerCase().includes('reschedule')) interviewDay = currentLine.split('to')[1].split(',')[0]
           }
         }
+        
+        if (confirmation === true && discordUser !== '' && interviewDay !== '') break
       }
+
+      if (confirmation === false || discordUser === '' || interviewDay === '') return 
 
       if (interviewDay !== '' && discordUser !== '') {
         var sheetSearch = DriveApp.getFilesByName('Schedule for Mock Interviews') // eslint-disable-line
