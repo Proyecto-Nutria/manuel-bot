@@ -21,11 +21,10 @@ function schedule_mock_and_send_email (event) { // eslint-disable-line
     var googleDocUrlRow = currentRow + 1
     var interviewerRow = currentRow - 1
 
-    if (currentTypeCell === typeHour) {
+    if (currentTypeCell === typeHour && currentCol < limitOfColumns) {
       var hour = getValueOf(activeSheet, currentRow, currentCol)
       var roomAssigned = getValueOf(activeSheet, roomRow, currentCol) !== empty
       var newInterview = currentTypeCell === typeHour &&
-        currentCol < limitOfColumns &&
         hour !== '' &&
         !roomAssigned
 
@@ -225,26 +224,23 @@ function createEventAndInvite (
 
   if (interviewDayCleaned < todayDay) todayMonth += 1
 
+  const localTime = new Date(
+    today.getFullYear(),
+    todayMonth,
+    interviewDayCleaned,
+    hour,
+    minutes,
+    0
+  );
+  const ptTime = new Date(localTime.toLocaleString('en-US', {timeZone: "America/Los_Angeles"}));
+  const diffWithPT = localTime.getTime() - ptTime.getTime();
+
   CalendarApp.getCalendarById( // eslint-disable-line
     mockCalendarId
   ).createEvent(
     'Mock Interview: ' + discordUser,
-    new Date(
-      today.getFullYear(),
-      todayMonth,
-      interviewDayCleaned,
-      hour + 2,
-      minutes,
-      0
-    ),
-    new Date(
-      today.getFullYear(),
-      todayMonth,
-      interviewDayCleaned,
-      hour + 3,
-      minutes,
-      0
-    ),
+    new Date(localTime.getTime() + diffWithPT),
+    new Date(localTime.getTime() + diffWithPT + 3600000),
     {
       description: '<a href="' + docURL + '">Docs link</a>',
       location: room,
@@ -347,7 +343,7 @@ function getEmailOf (event, id, sheetName) {
 
 function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
   var message = 'We have scheduled an interview for '
-  if (type === 2) message = 'Your interview has been reschedule to '
+  if (type === 2) message = 'Your interview has been rescheduled to '
   return 'Hi ' +
     discordUser +
     '\n\n' +
@@ -362,7 +358,7 @@ function getBodyEmail (discordUser, day, hour, formattedRoom, docUrl, type) {
     'Doc: ' +
     docUrl +
     '\n\n' +
-    'Please confirm (You need to specifically write the word "confirm").\n\n' +
+    'Please confirm by replying to this email (You need to specifically write the word "confirm" in your reply).\n\n' +
     'Best,\n' +
     'Your friends at Nutria'
 }
@@ -424,15 +420,4 @@ function writeLogEntry (event, discordUser, interviewDay, docUrl, interviewer, l
     }
     currentEntry += 1
   }
-}
-
-module.exports = {
-  isNumeric,
-  getRoomId,
-  columnToLetter,
-  getInfoWithNoSpacesOF,
-  intervalsIntersect,
-  findSpaceInRoom,
-  toMinutesInADay,
-  getUrlOfCell
 }
