@@ -231,9 +231,9 @@ function createEventAndInvite (
     hour,
     minutes,
     0
-  );
-  const ptTime = new Date(localTime.toLocaleString('en-US', {timeZone: "America/Los_Angeles"}));
-  const diffWithPT = localTime.getTime() - ptTime.getTime();
+  )
+  const ptTime = new Date(localTime.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }))
+  const diffWithPT = localTime.getTime() - ptTime.getTime()
 
   CalendarApp.getCalendarById( // eslint-disable-line
     mockCalendarId
