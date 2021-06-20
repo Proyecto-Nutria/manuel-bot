@@ -421,3 +421,14 @@ function writeLogEntry (event, discordUser, interviewDay, docUrl, interviewer, l
     currentEntry += 1
   }
 }
+
+module.exports = {
+  isNumeric,
+  getRoomId,
+  columnToLetter,
+  getInfoWithNoSpacesOF,
+  intervalsIntersect,
+  findSpaceInRoom,
+  toMinutesInADay,
+  getUrlOfCell
+}
